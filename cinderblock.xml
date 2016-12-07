@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<cinder>
+<block
+	name="FFTOctaveAnalysis"
+	id="org.hperigo.box2d"
+	author="Henrique Périgo"
+	summary="FFT Analysis"
+	>
+	<sourcePattern>src/fft/*.cpp</sourcePattern>
+	<headerPattern>src/fft/*.h</headerPattern>
+	<header>src/FFTOctaveAnalysis.h</header>
+	<includePath system="true">src</includePath>
+</block>
+</cinder>
