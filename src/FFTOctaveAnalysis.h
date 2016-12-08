@@ -6,6 +6,7 @@
 #include "fft/fftOctaveAnalyzer.h"
 
 #include "cinder/audio/audio.h"
+#include "cinder/Easing.h"
 
 
 class FFTOctaveAnalysis{
@@ -41,19 +42,6 @@ public:
         int numOctaves=2;
         nBands = 9 * numOctaves + 1;
         
-        
-//        for (auto & v : magnitude) {
-//            v = 0;
-//        }
-//        for (auto & v : phase) {
-//            v = 0;
-//        }
-//        for (auto & v : power) {
-//            v = 0;
-//        }
-//        for (auto & v : freq) {
-//            v = 0;
-//        }
 
         memset(magnitude, 0, BUFFER_SIZE_FFT);
         memset(phase, 0, BUFFER_SIZE_FFT);
@@ -82,6 +70,8 @@ public:
         audioBuffer = mMonitorSpectralNode->getBuffer();
         
         myfft.powerSpectrum(0,(int)BUFFER_SIZE_FFT/2, audioBuffer.getChannel(1), BUFFER_SIZE_FFT, &magnitude[0], &phase[0], &power[0], &avg_power);
+        
+        
         FFTanalyzer.calculate(magnitude);
         
         
@@ -93,9 +83,14 @@ public:
         
         for(int i = 0; i< FFTanalyzer.nAverages; i++){
             
-            float audioValue = cinder::math<float>::clamp(FFTanalyzer.peaks[i] * audioGain + audioPiso, 0.0f, 10);
-            picos[i] = audioValue; // (audioValue - picos[i]) * audioEasing;
+//            float audioValue =
+            float diff = peaks[i] * audioGain - picos[i];
+            picos[i] += diff * audioEasing; // (audioValue - ) * audioEasing;
 
+            picos[i] = cinder::math<float>::clamp( picos[i] + audioPiso, 0.0f, audioMax);
+            
+//            picos[i] = cinder::easeInOutAtan(picos[i] / audioMax) * audioMax * 2;
+            
         }
     }
 
@@ -120,7 +115,7 @@ private:
     const static int BUFFER_SIZE_FFT = 512;
     
     // AUDIO 2 VARS
-    int nBands = 19;
+    int nBands = 60;
     float avg_power = 0.0f;
     std::vector<float> picos;
     int 	bufferCounter;
@@ -136,7 +131,7 @@ private:
     ci::audio::Buffer audioBuffer = ci::audio::Buffer(BUFFER_SIZE_FFT);
     
     
-    float audioEasing = 0.99f;
+    float audioEasing = 0.85f;
     float audioGain = 1.0f;
     
     float audioPiso = 0.0f;
